@@ -1,0 +1,11 @@
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+PRODUCT_NAME = Animal Facts
+PRODUCT_BUNDLE_IDENTIFIER = com.bundle.id
+
+DEVELOPMENT_ASSET_PATHS = "$(SRCROOT)/AnimalFacts/Resources/Preview Content"
+
+IPHONEOS_DEPLOYMENT_TARGET = 16.0
