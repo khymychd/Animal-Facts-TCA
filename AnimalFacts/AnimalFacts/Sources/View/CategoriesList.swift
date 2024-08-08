@@ -13,10 +13,14 @@ struct CategoriesList: View {
     var body: some View {
         WithPerceptionTracking {
             NavigationStack {
-                ScrollView {
-                    if store.isLoading {
+                if store.isLoading {
+                    ZStack {
+                        Color.background
                         ProgressView()
-                    } else {
+                    }
+                    .ignoresSafeArea()
+                } else {
+                    ScrollView {
                         LazyVStack {
                             ForEach(Array(store.items.enumerated()), id: \.offset) { element in
                                 row(for: element.element)
@@ -26,11 +30,12 @@ struct CategoriesList: View {
                             }
                         }
                         .padding(.horizontal, horizontalSizeClass == .compact ? 20 : 120)
+                        
                     }
+                    .padding(.top, 1) // Needed
+                    .scrollIndicators(.never)
+                    .background(Color.background)
                 }
-                .padding(.top, 1) // Needed
-                .scrollIndicators(.never)
-                .background(Color.background)
             }
             .task {
                 store.send(.fetchData)
