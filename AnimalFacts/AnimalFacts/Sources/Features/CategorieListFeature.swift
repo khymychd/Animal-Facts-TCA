@@ -1,6 +1,14 @@
 //
+
 import ComposableArchitecture
 import UIKit.UIImage
+
+enum LoadingState: Int, Equatable {
+    case idle
+    case loading
+    case success
+    case failed
+}
 
 @Reducer
 struct CategorieListFeature {
@@ -17,18 +25,20 @@ struct CategorieListFeature {
             let title: String
             let imageURL: String
         }
+        
         let id: Int
         let title: String
         let subtitle: String
         var contentStatus: ContentStatus
         var image: UIImage?
-        let content: [Content]?
+        fileprivate (set) var imageLoadingState: LoadingState = .idle
+        fileprivate let content: [Content]?
         fileprivate let imageUrl: String
     }
     
     @ObservableState
     struct State {
-        var isLoading: Bool = false
+        var loadingState: LoadingState = .idle
         var items: [Item] = []
     }
     
@@ -38,16 +48,22 @@ struct CategorieListFeature {
         case dataFetchFail(withErrorMessage: String)
         case didSelectItem(atIndex: Int)
         case markItemAsFree(atIndex: Int)
+        case fetchImageIfNeeded(forItemAtIndex: Int)
+        case cancelFetchImage(atIndex: Int)
         case setImage(UIImage?, Int)
+    }
+    
+    fileprivate enum CancelationID: Equatable, Hashable {
+        case loadImage(atIndex: Int)
     }
     
     let apiService: APIClient = .init()
     
     var body: some Reducer<State, Action> {
-        Reduce {state, action in
+        Reduce { state, action in
             switch action {
             case .fetchData:
-                state.isLoading = true
+                state.loadingState = .loading
                 return .run { send in
                     let fetchResult = await apiService.fetchAnimalList()
                     switch fetchResult {
@@ -72,21 +88,16 @@ struct CategorieListFeature {
                         }
                         return await send.callAsFunction(.dataFetchSuccess(items))
                     case .failure(let failure):
-                       return await send.callAsFunction(.dataFetchFail(withErrorMessage: failure.localizedDescription))
+                        return await send.callAsFunction(.dataFetchFail(withErrorMessage: failure.localizedDescription))
                     }
                 }
             case .dataFetchSuccess(let items):
-                state.isLoading = false
+                state.loadingState = items.isEmpty ? .failed : .success
                 state.items = items
-                return .run { send in
-                    for (index, item) in items.enumerated() {
-                        let imageData = await apiService.loadResource(from: item.imageUrl)
-                        await send.callAsFunction(.setImage(UIImage(data: imageData!), index))
-                    }
-                }
+                return .none
             case .dataFetchFail(let errorMessage):
                 print(errorMessage)
-                state.isLoading = false
+                state.loadingState = .failed
                 return .none
             case .didSelectItem(let index):
                 let itemStatus = state.items[index].contentStatus
@@ -96,8 +107,34 @@ struct CategorieListFeature {
                 state.items[index].contentStatus = .free
                 return .none
             case .setImage(let image, let index):
+                state.items[index].imageLoadingState = image == nil ? .failed : .success
                 state.items[index].image = image
                 return .none
+            case .fetchImageIfNeeded(let index):
+                let item = state.items[index]
+                guard item.imageLoadingState == .idle else {
+                    return .none
+                }
+                let imageURL = item.imageUrl
+                state.items[index].imageLoadingState = .loading
+                return .run { send in
+                    let imageFetchResult = await apiService.loadResource(from: imageURL)
+                    switch imageFetchResult {
+                    case .success(let imageData):
+                        await send.callAsFunction(.setImage(UIImage(data: imageData), index))
+                    case .failure(let failure):
+                        debugPrint(failure.localizedDescription)
+                        await send.callAsFunction(.setImage( nil, index))
+                    }
+                }
+                .cancellable(id: CancelationID.loadImage(atIndex: index), cancelInFlight: true)
+            case .cancelFetchImage(let index):
+                let item = state.items[index]
+                guard item.imageLoadingState == .loading else {
+                    return .none
+                }
+                state.items[index].imageLoadingState = .idle
+                return .cancel(id: CancelationID.loadImage(atIndex: index))
             }
         }
     }

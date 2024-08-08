@@ -5,10 +5,10 @@ import NetworkClient
 
 struct APIClient {
     
-    enum CategoriesEndPoint: EndPoint {
+    private enum CategoriesEndPoint: EndPoint {
         
         case animals
-       
+        
         var host: URL {
             .init(string: "https://raw.githubusercontent.com")!
         }
@@ -29,13 +29,10 @@ struct APIClient {
         return await networkClient.performRequest(for: endPoint, decodeTo: [APIModel.Categorie].self)
     }
     
-    func loadResource(from url: String) async -> Data? {
-        let result = await networkClient.fetchData(for: .init(url: .init(string: url)!))
-        switch result {
-        case .success(let success):
-            return success
-        case .failure(let failure):
-            return nil
+    func loadResource(from url: String) async -> Result<Data, APIError> {
+        guard let url = URL(string: url) else {
+            return .failure(.invalidURL)
         }
+        return await networkClient.fetchData(for: .init(url: url))
     }
 }

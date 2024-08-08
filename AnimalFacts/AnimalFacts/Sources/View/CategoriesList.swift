@@ -13,29 +13,7 @@ struct CategoriesList: View {
     var body: some View {
         WithPerceptionTracking {
             NavigationStack {
-                if store.isLoading {
-                    ZStack {
-                        Color.background
-                        ProgressView()
-                    }
-                    .ignoresSafeArea()
-                } else {
-                    ScrollView {
-                        LazyVStack {
-                            ForEach(Array(store.items.enumerated()), id: \.offset) { element in
-                                row(for: element.element)
-                                    .onTapGesture {
-                                        store.send(.didSelectItem(atIndex: element.offset))
-                                    }
-                            }
-                        }
-                        .padding(.horizontal, horizontalSizeClass == .compact ? 20 : 120)
-                        
-                    }
-                    .padding(.top, 1) // Needed
-                    .scrollIndicators(.never)
-                    .background(Color.background)
-                }
+                contentView(for: store.loadingState)
             }
             .task {
                 store.send(.fetchData)
@@ -44,10 +22,50 @@ struct CategoriesList: View {
     }
     
     @ViewBuilder
-    private func row(for item: CategorieListFeature.Item) -> some View {
+    private func contentView(for loadingState: LoadingState) -> some View {
+        switch loadingState {
+        case .idle:
+            backgroundContainer { EmptyView() }
+        case .loading:
+            backgroundContainer {
+                ProgressView()
+            }
+        case .success:
+            ScrollView {
+                LazyVStack {
+                    ForEach(Array(store.items.enumerated()), id: \.offset) { element in
+                        row(for: element.element, at: element.offset)
+                            .onTapGesture {
+                                store.send(.didSelectItem(atIndex: element.offset))
+                            }
+                    }
+                }
+                .padding(.horizontal, horizontalSizeClass == .compact ? 20 : 120)
+                
+            }
+            .padding(.top, 1) // Needed
+            .scrollIndicators(.never)
+            .background(Color.background)
+        case .failed:
+            backgroundContainer {
+                Text("Some Error")
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func backgroundContainer(@ViewBuilder _ content:  () -> some View) -> some View {
+        ZStack {
+            Color.background
+            content()
+        }
+        .ignoresSafeArea()
+    }
+    
+    @ViewBuilder
+    private func row(for item: CategorieListFeature.Item, at index: Int) -> some View {
         HStack(alignment: .top, spacing: 0) {
-            Image(uiImage: item.image ?? .placeholder)
-                .resizable()
+            image(for: item, at: index)
                 .aspectRatio(12 / 9, contentMode: .fit)
                 .padding(.all, 5)
                 .frame(minWidth: 121)
@@ -93,6 +111,29 @@ struct CategoriesList: View {
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .shadow(radius: 2, y: 2)
         .aspectRatio(375 / 100, contentMode: .fill) // If needed static height use frame
+    }
+    
+    @ViewBuilder
+    private func image(for item: CategorieListFeature.Item, at index: Int) -> some View {
+        if item.imageLoadingState == .success, let image = item.image {
+            Image(uiImage: image)
+                .resizable()
+        } else {
+            Image(systemName: "photo.fill")
+                .resizable()
+                .foregroundStyle(Color.gray)
+                .overlay {
+                    if item.imageLoadingState == .loading {
+                        ProgressView()
+                    }
+                }
+                .onAppear(perform: {
+                    store.send(.fetchImageIfNeeded(forItemAtIndex: index))
+                })
+                .onDisappear(perform: {
+                    store.send(.cancelFetchImage(atIndex: index))
+                })
+        }
     }
 }
 
