@@ -6,7 +6,11 @@ import SwiftUI
 struct AnimalFactsApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            CategoriesList(
+                store: .init(initialState: .init(), reducer: {
+                    CategorieListFeature()
+                })
+            )
         }
     }
 }

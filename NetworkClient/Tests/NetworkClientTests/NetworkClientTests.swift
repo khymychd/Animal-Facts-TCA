@@ -4,13 +4,13 @@ import XCTest
 final class NetworkClientTests: XCTestCase {
     
     var urlSessionMock: URLSessionMock!
-    var sut: NetworkClient!
+    var sut: NetworkDispatcher!
     var endPointMock: EndPointMock!
     
     override func setUp() async throws {
         endPointMock = EndPointMock()
         urlSessionMock = URLSessionMock()
-        sut = NetworkClient(session: urlSessionMock)
+        sut = NetworkDispatcher(session: urlSessionMock)
     }
     
     override func tearDown() async throws {

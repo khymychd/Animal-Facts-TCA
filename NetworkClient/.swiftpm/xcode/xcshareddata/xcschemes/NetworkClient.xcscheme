@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A09E775C2C63C99900B709FB"
-               BuildableName = "Animal Facts.app"
-               BlueprintName = "AnimalFacts"
-               ReferencedContainer = "container:AnimalFacts.xcodeproj">
+               BlueprintIdentifier = "NetworkClient"
+               BuildableName = "NetworkClient"
+               BlueprintName = "NetworkClient"
+               ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -40,16 +40,6 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A09E775C2C63C99900B709FB"
-            BuildableName = "Animal Facts.app"
-            BlueprintName = "AnimalFacts"
-            ReferencedContainer = "container:AnimalFacts.xcodeproj">
-         </BuildableReference>
-      </BuildableProductRunnable>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -57,16 +47,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A09E775C2C63C99900B709FB"
-            BuildableName = "Animal Facts.app"
-            BlueprintName = "AnimalFacts"
-            ReferencedContainer = "container:AnimalFacts.xcodeproj">
+            BlueprintIdentifier = "NetworkClient"
+            BuildableName = "NetworkClient"
+            BlueprintName = "NetworkClient"
+            ReferencedContainer = "container:">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

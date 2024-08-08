@@ -10,7 +10,7 @@ protocol URLSessionAsyncDataFetchable {
 
 extension URLSession: URLSessionAsyncDataFetchable {}
 
-public struct NetworkClient {
+public struct NetworkDispatcher {
     
     private let session: URLSessionAsyncDataFetchable
     
