@@ -8,7 +8,7 @@ struct AnimalFactsApp: App {
         WindowGroup {
             CategoriesList(
                 store: .init(initialState: .init(), reducer: {
-                    CategorieListFeature()
+                    CategoryListFeature()
                 })
             )
         }

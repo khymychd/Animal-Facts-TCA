@@ -8,16 +8,26 @@ struct CategoriesList: View {
     @Environment(\.horizontalSizeClass)
     var horizontalSizeClass
     
-    let store: Store<CategorieListFeature.State, CategorieListFeature.Action>
+    let store: Store<CategoryListFeature.State, CategoryListFeature.Action>
     
     var body: some View {
         WithPerceptionTracking {
             NavigationStack {
                 contentView(for: store.loadingState)
             }
+            .overlay(content: {
+                if store.isDisplayAd {
+                    ZStack {
+                        Color.gray.opacity(0.5)
+                        ProgressView()
+                    }
+                    .ignoresSafeArea()
+                }
+            })
             .task {
                 store.send(.fetchData)
             }
+            .alert(store: store.scope(state: \.$alert, action: \.alert))
         }
     }
     
@@ -32,7 +42,7 @@ struct CategoriesList: View {
             }
         case .success:
             ScrollView {
-                LazyVStack {
+                LazyVStack(spacing: 16) {
                     ForEach(Array(store.items.enumerated()), id: \.offset) { element in
                         row(for: element.element, at: element.offset)
                             .onTapGesture {
@@ -41,7 +51,7 @@ struct CategoriesList: View {
                     }
                 }
                 .padding(.horizontal, horizontalSizeClass == .compact ? 20 : 120)
-                
+                .padding(.top, 30)
             }
             .padding(.top, 1) // Needed
             .scrollIndicators(.never)
@@ -63,7 +73,7 @@ struct CategoriesList: View {
     }
     
     @ViewBuilder
-    private func row(for item: CategorieListFeature.Item, at index: Int) -> some View {
+    private func row(for item: CategoryListFeature.Item, at index: Int) -> some View {
         HStack(alignment: .top, spacing: 0) {
             image(for: item, at: index)
                 .aspectRatio(12 / 9, contentMode: .fit)
@@ -114,7 +124,7 @@ struct CategoriesList: View {
     }
     
     @ViewBuilder
-    private func image(for item: CategorieListFeature.Item, at index: Int) -> some View {
+    private func image(for item: CategoryListFeature.Item, at index: Int) -> some View {
         if item.imageLoadingState == .success, let image = item.image {
             Image(uiImage: image)
                 .resizable()
