@@ -8,12 +8,18 @@ struct CategoriesList: View {
     @Environment(\.horizontalSizeClass)
     var horizontalSizeClass
     
-    let store: Store<CategoryListFeature.State, CategoryListFeature.Action>
+    @Perception.Bindable
+    var store: StoreOf<CategoryListFeature>
     
     var body: some View {
         WithPerceptionTracking {
-            NavigationStack {
+            NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
                 contentView(for: store.loadingState)
+            } destination: { store in
+                switch store.case {
+                case .factList(let factListFeature):
+                    FactsPager(store: factListFeature)
+                }
             }
             .overlay(content: {
                 if store.isDisplayAd {

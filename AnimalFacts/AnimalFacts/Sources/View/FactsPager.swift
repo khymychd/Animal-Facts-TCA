@@ -1,95 +1,99 @@
 //
 
+import ComposableArchitecture
 import SwiftUI
 
 struct FactsPager: View {
     
-    var dataSource: [Int] = (0..<10).map({ $0 })
-    
-    @State
-    var selectedIndex: Int = 0
+    @Perception.Bindable
+    var store: StoreOf<FactsListFeature>
     
     @Environment(\.horizontalSizeClass)
     var horizontalSizeClass
     
     var body: some View {
-        TabView(selection: $selectedIndex, content:  {
-            ForEach(dataSource, id: \.self) { index in
-                VStack {
-                    Image(uiImage: .placeholder)
-                        .resizable()
-                        .aspectRatio(315 / 234,contentMode: .fit)
-                        .padding(.all, 10)
-                    
-                    Text("Some Fact\ns\ns\ns\ns")
-                        .multilineTextAlignment(.center)
-                        .frame(minHeight: 100)
-                        .padding(.top, 7)
-                    
-                    HStack() {
-                        directionButton(.back) {
-                            
+        WithPerceptionTracking {
+            TabView(selection: $store.selectedIndex.sending(\.changeSelectedItem)) {
+                ForEach(store.items, id: \.id) { item in
+                    WithPerceptionTracking {
+                        VStack {
+                            Image(uiImage: .placeholder)
+                                .resizable()
+                                .aspectRatio(315 / 234,contentMode: .fit)
+                                .padding(.all, 10)
+                            Text(item.title)
+                                .multilineTextAlignment(.center)
+                                .frame(minHeight: 100)
+                                .padding([.top, .horizontal], 7)
+                            HStack() {
+                                directionButton(.back) {
+                                    store.send(.back)
+                                }
+                                .disabled(!store.hasPrevious)
+                                Spacer()
+                                directionButton(.forward) {
+                                    store.send(.forward)
+                                }
+                                .disabled(!store.hasNext)
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 22)
                         }
-                        Spacer()
-                        directionButton(.forward) {
-                            
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 22)
-                }
-                .background(content: {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.cardBackground)
+                        .background(Color.cardBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .padding(.horizontal, horizontalSizeClass == .compact ? 20 : 120)
                         .shadow(color: .black.opacity(0.3) ,radius: 30, y: 30)
-                })
-                .padding(.horizontal, horizontalSizeClass == .compact ? 20 : 120)
-                .onAppear(perform: {
-                    print("ITEM Number index \(index)")
-                })
+                        .tag(item.id)
+                    }
+                }
             }
-        })
-        .navigationTitle("Title")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .navigationBarItems(
-            leading: navigationBarButton("arrow.left") {
-                
-            },
-            trailing: navigationBarButton("square.and.arrow.up") {
-                
-            }
-        )
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        .background(Color.background)
-        .toolbarBackground(Color.background, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .animation(.easeInOut, value: store.selectedIndex)
+            .padding(.bottom)
+            .navigationTitle(store.title)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
+            .navigationBarItems(
+                leading: navigationBarButton("arrow.left") {
+                    store.send(.dismiss)
+                },
+                trailing: navigationBarButton("square.and.arrow.up") {
+                    
+                }
+            )
+            .background(Color.background)
+            .toolbarBackground(Color.background, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+        }
     }
     
     @ViewBuilder
     private func directionButton(_ image: UIImage, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(uiImage: image)
+                .renderingMode(.template)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 52, height: 52)
+                .tint(.black)
         }
     }
     
     @ViewBuilder
     private func navigationBarButton(_ name: String, _ action: @escaping () -> Void) -> some View {
-        Image(systemName: name)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .tint(.black)
-            .onTapGesture {
-                action()
-            }
+        Button(action: action) {
+            Image(systemName: name)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .tint(.black)
+        }
     }
 }
 
 #Preview {
     NavigationStack {
-        FactsPager()
+        FactsPager(store: .init(initialState: .init(title: "Some title", items: .init()), reducer: {
+            FactsListFeature()
+        }))
     }
 }

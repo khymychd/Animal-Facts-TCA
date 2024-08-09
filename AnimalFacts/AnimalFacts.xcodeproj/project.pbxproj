@@ -12,6 +12,7 @@
 		A0121AA22C64CDAE00ED92A1 /* CategoryListFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0121AA12C64CDAE00ED92A1 /* CategoryListFeature.swift */; };
 		A0121AA52C64CDC900ED92A1 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = A0121AA42C64CDC900ED92A1 /* ComposableArchitecture */; };
 		A0121AA72C64CF2C00ED92A1 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0121AA62C64CF2C00ED92A1 /* APIClient.swift */; };
+		A012D9B32C664FF7004AF04A /* FactsListFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = A012D9B22C664FF7004AF04A /* FactsListFeature.swift */; };
 		A013B7D62C63D6E3004BF9F4 /* NetworkClient in Frameworks */ = {isa = PBXBuildFile; productRef = A013B7D52C63D6E3004BF9F4 /* NetworkClient */; };
 		A09C20F82C63DABA00155E6B /* CategoriesList.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09C20F72C63DABA00155E6B /* CategoriesList.swift */; };
 		A09C20FC2C63DD6300155E6B /* FactsPager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09C20FB2C63DD6300155E6B /* FactsPager.swift */; };
@@ -25,6 +26,7 @@
 		A0121A9E2C64CADB00ED92A1 /* APIModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIModel.swift; sourceTree = "<group>"; };
 		A0121AA12C64CDAE00ED92A1 /* CategoryListFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryListFeature.swift; sourceTree = "<group>"; };
 		A0121AA62C64CF2C00ED92A1 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		A012D9B22C664FF7004AF04A /* FactsListFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FactsListFeature.swift; sourceTree = "<group>"; };
 		A09C20F72C63DABA00155E6B /* CategoriesList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CategoriesList.swift; sourceTree = "<group>"; };
 		A09C20FB2C63DD6300155E6B /* FactsPager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FactsPager.swift; sourceTree = "<group>"; };
 		A09E775D2C63C99900B709FB /* Animal Facts.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Animal Facts.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -76,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				A0121AA12C64CDAE00ED92A1 /* CategoryListFeature.swift */,
+				A012D9B22C664FF7004AF04A /* FactsListFeature.swift */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -247,6 +250,7 @@
 			files = (
 				A09C20FC2C63DD6300155E6B /* FactsPager.swift in Sources */,
 				A0121AA72C64CF2C00ED92A1 /* APIClient.swift in Sources */,
+				A012D9B32C664FF7004AF04A /* FactsListFeature.swift in Sources */,
 				A0121A9B2C6413C600ED92A1 /* Color+Hex.swift in Sources */,
 				A09C20F82C63DABA00155E6B /* CategoriesList.swift in Sources */,
 				A09E77612C63C99900B709FB /* AnimalFactsApp.swift in Sources */,

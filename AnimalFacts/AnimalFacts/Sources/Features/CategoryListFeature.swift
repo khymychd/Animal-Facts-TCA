@@ -32,17 +32,25 @@ struct CategoryListFeature {
         fileprivate (set) var contentStatus: ContentStatus
         fileprivate (set) var image: UIImage?
         fileprivate (set) var imageLoadingState: LoadingState = .idle
-        fileprivate let content: [Content]?
+        fileprivate var content: [Content] = []
         fileprivate let imageUrl: String
+    }
+    
+    @Reducer
+    enum Path {
+        case factList(FactsListFeature)
     }
     
     @ObservableState
     struct State {
+        
+        @Presents
+        var alert: AlertState<Action.Alert>?
+        
         var loadingState: LoadingState = .idle
         var items: [Item] = []
         var isDisplayAd: Bool = false
-        @Presents
-        var alert: AlertState<Action.Alert>?
+        var path: StackState<Path.State> = .init()
     }
     
     enum Action {
@@ -55,6 +63,10 @@ struct CategoryListFeature {
         case setImage(UIImage?, Int)
         case alert(PresentationAction<Alert>)
         case completeAd(forItemAtIndex: Int)
+        
+        
+        case displayFact(forItemAtIndex: Int)
+        case path(StackActionOf<Path>)
         
 #warning("Try to find the problem with @CasePathable")
         //        @CasePathable
@@ -70,7 +82,7 @@ struct CategoryListFeature {
     let apiService: APIClient = .init()
     @Dependency(\.continuousClock) var clock
     
-    var body: some Reducer<State, Action> {
+    var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .fetchData:
@@ -91,9 +103,14 @@ struct CategoryListFeature {
                 return completeAd(forItemAt: index, &state)
             case .alert(let alert): // In my case @CasePathable doesn't work 🤷
                 return handleAlertActions(alert, state: &state)
+            case .displayFact(let index):
+                return displayFacts(for: index, &state)
+            case .path:
+                return .none
             }
         }
         .ifLet(\.$alert, action: \.alert)
+        .forEach(\.path, action: \.path)
     }
 }
 
@@ -137,8 +154,9 @@ private extension CategoryListFeature {
         let item = state.items[index]
         if let alertState = buildAlert(for: item, at: index) {
             state.alert = alertState
+            return .none
         }
-        return .none
+        return .send(.displayFact(forItemAtIndex: index))
     }
 
     func fetchImageIfNeeded(forItemAt index: Int, _ state: inout State) -> Effect<Action> {
@@ -179,6 +197,19 @@ private extension CategoryListFeature {
     func completeAd(forItemAt index: Int, _ state: inout State) -> Effect<Action> {
         state.isDisplayAd = false
         state.items[index].contentStatus = .free
+        return .send(.displayFact(forItemAtIndex: index))
+    }
+    
+    func displayFacts(for itemAtIndex: Int, _ state: inout State) -> Effect<Action> {
+        let item = state.items[itemAtIndex]
+        let content = item.content
+        let factsListState: FactsListFeature.State = .init(
+            title: item.title,
+            items: content.enumerated().map {
+                .init(id:$0.offset, title: $0.element.title, imageURL: $0.element.imageURL)
+            }
+        )
+        state.path.append(.factList(factsListState))
         return .none
     }
 }
@@ -245,7 +276,7 @@ private extension CategoryListFeature {
                 title: $0.title,
                 subtitle: $0.description,
                 contentStatus: contentStatus,
-                content: $0.content?.map { .init(title: $0.fact, imageURL: $0.image) },
+                content: $0.content?.map { .init(title: $0.fact, imageURL: $0.image) } ?? [],
                 imageUrl: $0.imageURL
             )
         }
