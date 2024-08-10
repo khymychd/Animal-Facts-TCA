@@ -11,11 +11,9 @@ struct CommonAdFeature {
     @Dependency(\.dismiss)
     var dismiss
     
-    struct State {
-        
-    }
+    struct State: Equatable {}
     
-    enum Action {
+    enum Action: Equatable {
         case onAppear
     }
     

@@ -13,41 +13,21 @@ enum LoadingState: Int, Equatable {
 @Reducer
 struct CategoryListFeature {
     
-    struct Item: Identifiable {
-        
-        enum ContentStatus {
-            case free
-            case premium
-            case comingSoon
-        }
-        
-        struct Content {
-            let title: String
-            let imageURL: String
-        }
-        
-        let id: Int
-        let title: String
-        let subtitle: String
-        fileprivate (set) var contentStatus: ContentStatus
-        fileprivate (set) var image: UIImage?
-        fileprivate (set) var imageLoadingState: LoadingState = .idle
-        fileprivate var content: [Content] = []
-        fileprivate let imageUrl: String
-    }
+    typealias Row = CategoryRowFeature.State
+    typealias RowAction = CategoryRowFeature.Action
     
-    @Reducer
+    @Reducer(state: .equatable)
     enum Path {
         case factList(FactsListFeature)
     }
     
-    @Reducer
+    @Reducer(state: .equatable)
     enum Destination {
         case commonAd(CommonAdFeature)
     }
     
     @ObservableState
-    struct State {
+    struct State: Equatable {
         
         @Presents
         var alert: AlertState<Action.Alert>?
@@ -56,25 +36,23 @@ struct CategoryListFeature {
         var destination: Destination.State?
         
         var loadingState: LoadingState = .idle
-        var items: [Item] = []
+        var rows: IdentifiedArrayOf<Row> = .init()
         var path: StackState<Path.State> = .init()
-        
-        fileprivate var selectedItemIndex: Int?
+                
+        fileprivate var selectedRowId: Row.ID?
     }
     
     enum Action {
         case fetchData
-        case dataFetchSuccess([Item])
+        case dataFetchSuccess(IdentifiedArrayOf<Row>)
         case dataFetchFail(withErrorMessage: String)
-        case didSelectItem(atIndex: Int)
-        case fetchImageIfNeeded(forItemAtIndex: Int)
-        case cancelFetchImage(atIndex: Int)
-        case setImage(UIImage?, Int)
-        case alert(PresentationAction<Alert>)
-        case completeAd(forItemAtIndex: Int)
+        case completeAd
         
-        case displayFact(forItemAtIndex: Int)
-       
+        case displayFact(for: Row.ID)
+        
+        case rowAction(IdentifiedAction<Row.ID, RowAction>)
+    
+        case alert(PresentationAction<Alert>)
         case destination(PresentationAction<Destination.Action>)
         case path(StackActionOf<Path>)
         
@@ -82,11 +60,7 @@ struct CategoryListFeature {
             case showAd
         }
     }
-    
-    fileprivate enum CancelationID: Equatable, Hashable {
-        case loadImage(atIndex: Int)
-    }
-    
+
     let apiService: APIClient = .init()
     
     var body: some ReducerOf<Self> {
@@ -94,33 +68,30 @@ struct CategoryListFeature {
             switch action {
             case .fetchData:
                 return fetchData(&state)
-            case .dataFetchSuccess(let items):
-                return dataFetchSuccess(with: items, &state)
+            case .dataFetchSuccess(let rows):
+                return dataFetchSuccess(with: rows, &state)
             case .dataFetchFail(let errorMessage):
                 return dataFetchFail(with: errorMessage, &state)
-            case .didSelectItem(let index):
-                return didSelectItem(at: index, &state)
-            case .setImage(let image, let index):
-                return setImage(image, at: index, &state)
-            case .fetchImageIfNeeded(let index):
-                return fetchImageIfNeeded(forItemAt: index, &state)
-            case .cancelFetchImage(let index):
-                return cancelFetchImage(at: index, &state)
-            case .completeAd(let index):
-                return completeAd(forItemAt: index, &state)
-            case .alert(let alert): // In my case @CasePathable doesn't work 🤷
-                return handleAlertActions(alert, &state)
-            case .displayFact(let index):
-                return displayFacts(for: index, &state)
-            case .path:
-                return .none
+            case .alert(let action):
+                return handleAlertActions(action, &state)
+            case .completeAd:
+                return completeAd(&state)
+            case .displayFact(let id):
+                return displayFacts(for: id, &state)
             case .destination(let action):
                 return destination(action, &state)
+            case .path:
+                return .none
+            case .rowAction(let action):
+                return handleRowActions(action, &state)
             }
         }
         .ifLet(\.$alert, action: \.alert)
         .forEach(\.path, action: \.path)
         .ifLet(\.$destination, action: \.destination)
+        .forEach(\.rows, action: \.rowAction) {
+            CategoryRowFeature()
+        }
     }
 }
 
@@ -142,9 +113,9 @@ private extension CategoryListFeature {
         }
     }
     
-    func dataFetchSuccess(with items: [Item], _ state: inout State) -> Effect<Action> {
-        state.loadingState = items.isEmpty ? .failed : .success
-        state.items = items
+    func dataFetchSuccess(with rows: IdentifiedArrayOf<Row>, _ state: inout State) -> Effect<Action> {
+        state.loadingState = rows.isEmpty ? .failed : .success
+        state.rows = rows
         return .none
     }
     
@@ -160,67 +131,43 @@ private extension CategoryListFeature {
         return .none
     }
     
-    func didSelectItem(at index: Int, _ state: inout State) -> Effect<Action> {
-        state.selectedItemIndex = index
-        let item = state.items[index]
-        if let alertState = buildAlert(for: item, at: index) {
-            state.alert = alertState
-            return .none
-        }
-        return .send(.displayFact(forItemAtIndex: index))
-    }
-
-    func fetchImageIfNeeded(forItemAt index: Int, _ state: inout State) -> Effect<Action> {
-        let item = state.items[index]
-        guard item.imageLoadingState == .idle else {
-            return .none
-        }
-        let imageURL = item.imageUrl
-        state.items[index].imageLoadingState = .loading
-        return .run { send in
-            let imageFetchResult = await apiService.loadResource(from: imageURL)
-            switch imageFetchResult {
-            case .success(let imageData):
-                await send.callAsFunction(.setImage(UIImage(data: imageData), index))
-            case .failure(let failure):
-                debugPrint(failure.localizedDescription)
-                await send.callAsFunction(.setImage( nil, index))
+    func handleRowActions(_ action: IdentifiedAction<Row.ID, RowAction>, _ state: inout State) -> Effect<Action> {
+        switch action {
+        case .element(let id, let action):
+            guard case .didSelect = action else {
+                return .none
             }
+            state.selectedRowId = id
+            let row = state.rows[id]
+            if let alertState = buildAlert(for: row) {
+                state.alert = alertState
+                return .none
+            }
+            return .send(.displayFact(for: id))
         }
-        .cancellable(id: CancelationID.loadImage(atIndex: index), cancelInFlight: true)
     }
     
-    func cancelFetchImage(at index: Int, _ state: inout State) -> Effect<Action>{
-        let item = state.items[index]
-        guard item.imageLoadingState == .loading else {
+    func completeAd(_ state: inout State) -> Effect<Action> {
+        guard let selectedId = state.selectedRowId else {
             return .none
         }
-        state.items[index].imageLoadingState = .idle
-        return .cancel(id: CancelationID.loadImage(atIndex: index))
-    }
-    
-    func setImage(_ image: UIImage?, at index: Int, _ state: inout State) -> Effect<Action> {
-        state.items[index].imageLoadingState = image == nil ? .failed : .success
-        state.items[index].image = image
+        if state.rows[selectedId].contentStatus == .premium {
+            state.rows[selectedId].contentStatus = .free
+        }
         return .none
     }
     
-    func completeAd(forItemAt index: Int, _ state: inout State) -> Effect<Action> {
-        state.items[index].contentStatus = .free
-        return .send(.displayFact(forItemAtIndex: index))
-    }
-    
-    func displayFacts(for itemAtIndex: Int, _ state: inout State) -> Effect<Action> {
-        let item = state.items[itemAtIndex]
-        let content = item.content
+    func displayFacts(for rowId: Row.ID, _ state: inout State) -> Effect<Action> {
+        let row = state.rows[rowId]
+        let content = row.content
         let factsListState: FactsListFeature.State = .init(
-            title: item.title,
+            title: row.title,
             items: content.enumerated().map {
-                .init(id:$0.offset, title: $0.element.title, imageURL: $0.element.imageURL)
+                .init(id: $0.offset, title: $0.element.title, imageURL: $0.element.imageURL)
             }
         )
         state.path.append(.factList(factsListState))
-        state.selectedItemIndex = nil
+        state.selectedRowId = nil
         return .none
     }
     
@@ -232,7 +179,10 @@ private extension CategoryListFeature {
             }
             switch destination {
             case .commonAd:
-                return .send(.completeAd(forItemAtIndex: state.selectedItemIndex!))
+                guard let rowId = state.selectedRowId else {
+                    return .none
+                }
+                return .merge(.send(.completeAd), .send(.displayFact(for: rowId)))
             }
         case .presented:
             return .none
@@ -250,14 +200,14 @@ private extension CategoryListFeature {
             return .none
         case .dismiss:
             if state.destination == nil {
-                state.selectedItemIndex = nil
+                state.selectedRowId = nil
             }
             return .none
         }
     }
     
-    func buildAlert(for item: Item, at index: Int) -> AlertState<Action.Alert>? {
-        let status = item.contentStatus
+    func buildAlert(for row: Row) -> AlertState<Action.Alert>? {
+        let status = row.contentStatus
         switch status {
         case .free:
             return nil
@@ -289,22 +239,24 @@ private extension CategoryListFeature {
 // MARK: - Map ApiCategories to Items
 private extension CategoryListFeature {
     
-    func mapApiCategories(_ apiCategories: [APIModel.Categorie]) -> [Item] {
-        apiCategories.map {
-            let contentStatus: Item.ContentStatus =
-            switch $0.status {
+    func mapApiCategories(_ apiCategories: [APIModel.Categorie]) -> IdentifiedArrayOf<Row> {
+        let result = apiCategories.enumerated().map { offset, apiCategory -> Row in
+            let contentStatus: CategoryRowFeature.ContentStatus =
+            switch apiCategory.status {
             case .free: .free
             case.premium: .premium
             case .comingSoon: .comingSoon
             }
-            return .init(
-                id: $0.order,
-                title: $0.title,
-                subtitle: $0.description,
-                contentStatus: contentStatus,
-                content: $0.content?.map { .init(title: $0.fact, imageURL: $0.image) } ?? [],
-                imageUrl: $0.imageURL
-            )
+                return .init(
+                    id: offset,
+                    title: apiCategory.title,
+                    subtitle: apiCategory.description,
+                    imageURL: apiCategory.imageURL,
+                    contentStatus: contentStatus,
+                    content: apiCategory.content?.enumerated().map { .init(id: $0.offset, title: $0.element.fact, imageURL: $0.element.image) } ?? [],
+                    imageState: .init(id: apiCategory.order, imageURL: apiCategory.imageURL)
+                )
         }
+        return .init(uniqueElements: result)
     }
 }
