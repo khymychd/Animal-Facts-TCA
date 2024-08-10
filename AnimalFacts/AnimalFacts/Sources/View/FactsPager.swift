@@ -11,19 +11,22 @@ struct FactsPager: View {
     @Environment(\.horizontalSizeClass)
     var horizontalSizeClass
     
+    @Environment(\.verticalSizeClass)
+    var verticalSizeClass
+    
     var body: some View {
         WithPerceptionTracking {
             TabView(selection: $store.selectedIndex.sending(\.changeSelectedItem)) {
                 ForEach(store.items, id: \.id) { item in
                     WithPerceptionTracking {
-                        VStack {
-                            Image(uiImage: .placeholder)
+                        VStack(spacing: 0) {
+                            Image(systemName: "photo.fill")
                                 .resizable()
                                 .aspectRatio(315 / 234,contentMode: .fit)
                                 .padding(.all, 10)
                             Text(item.title)
                                 .multilineTextAlignment(.center)
-                                .frame(minHeight: 100)
+                                .frame(minHeight: 100, alignment: .top)
                                 .padding([.top, .horizontal], 7)
                             HStack() {
                                 directionButton(.back) {
@@ -41,15 +44,15 @@ struct FactsPager: View {
                         }
                         .background(Color.cardBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .shadow(radius: 7, y: 7)
                         .padding(.horizontal, horizontalSizeClass == .compact ? 20 : 120)
-                        .shadow(color: .black.opacity(0.3) ,radius: 30, y: 30)
+                        .padding(.vertical, verticalSizeClass == .compact ? 20 : 60)
                         .tag(item.id)
                     }
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(.easeInOut, value: store.selectedIndex)
-            .padding(.bottom)
             .navigationTitle(store.title)
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
