@@ -41,16 +41,25 @@ struct CategoryListFeature {
         case factList(FactsListFeature)
     }
     
+    @Reducer
+    enum Destination {
+        case commonAd(CommonAdFeature)
+    }
+    
     @ObservableState
     struct State {
         
         @Presents
         var alert: AlertState<Action.Alert>?
         
+        @Presents
+        var destination: Destination.State?
+        
         var loadingState: LoadingState = .idle
         var items: [Item] = []
-        var isDisplayAd: Bool = false
         var path: StackState<Path.State> = .init()
+        
+        fileprivate var selectedItemIndex: Int?
     }
     
     enum Action {
@@ -64,14 +73,13 @@ struct CategoryListFeature {
         case alert(PresentationAction<Alert>)
         case completeAd(forItemAtIndex: Int)
         
-        
         case displayFact(forItemAtIndex: Int)
+       
+        case destination(PresentationAction<Destination.Action>)
         case path(StackActionOf<Path>)
         
-#warning("Try to find the problem with @CasePathable")
-        //        @CasePathable
         enum Alert: Equatable {
-            case showAd(Int)
+            case showAd
         }
     }
     
@@ -80,7 +88,6 @@ struct CategoryListFeature {
     }
     
     let apiService: APIClient = .init()
-    @Dependency(\.continuousClock) var clock
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -102,15 +109,18 @@ struct CategoryListFeature {
             case .completeAd(let index):
                 return completeAd(forItemAt: index, &state)
             case .alert(let alert): // In my case @CasePathable doesn't work 🤷
-                return handleAlertActions(alert, state: &state)
+                return handleAlertActions(alert, &state)
             case .displayFact(let index):
                 return displayFacts(for: index, &state)
             case .path:
                 return .none
+            case .destination(let action):
+                return destination(action, &state)
             }
         }
         .ifLet(\.$alert, action: \.alert)
         .forEach(\.path, action: \.path)
+        .ifLet(\.$destination, action: \.destination)
     }
 }
 
@@ -151,6 +161,7 @@ private extension CategoryListFeature {
     }
     
     func didSelectItem(at index: Int, _ state: inout State) -> Effect<Action> {
+        state.selectedItemIndex = index
         let item = state.items[index]
         if let alertState = buildAlert(for: item, at: index) {
             state.alert = alertState
@@ -195,7 +206,6 @@ private extension CategoryListFeature {
     }
     
     func completeAd(forItemAt index: Int, _ state: inout State) -> Effect<Action> {
-        state.isDisplayAd = false
         state.items[index].contentStatus = .free
         return .send(.displayFact(forItemAtIndex: index))
     }
@@ -210,22 +220,38 @@ private extension CategoryListFeature {
             }
         )
         state.path.append(.factList(factsListState))
+        state.selectedItemIndex = nil
         return .none
+    }
+    
+    func destination(_ action: PresentationAction<Destination.Action>, _ state: inout State) -> Effect<Action> {
+        switch action {
+        case .dismiss:
+            guard let destination = state.destination else {
+                return .none
+            }
+            switch destination {
+            case .commonAd:
+                return .send(.completeAd(forItemAtIndex: state.selectedItemIndex!))
+            }
+        case .presented:
+            return .none
+        }
     }
 }
 
 // MARK: - Alert
 private extension CategoryListFeature {
     
-    func handleAlertActions(_ action: PresentationAction<Action.Alert>, state: inout State) -> Effect<Action> {
+    func handleAlertActions(_ action: PresentationAction<Action.Alert>, _ state: inout State) -> Effect<Action> {
         switch action {
-        case .presented(.showAd(let index)):
-            state.isDisplayAd = true
-            return .run { send in
-                try await clock.sleep(for: .seconds(2))
-                await send.callAsFunction(.completeAd(forItemAtIndex: index))
-            }
+        case .presented(.showAd):
+            state.destination = .commonAd(.init())
+            return .none
         case .dismiss:
+            if state.destination == nil {
+                state.selectedItemIndex = nil
+            }
             return .none
         }
     }
@@ -242,7 +268,7 @@ private extension CategoryListFeature {
                 ButtonState(role: .cancel) {
                     TextState("Cancel")
                 }
-                ButtonState(action: .showAd(index)) {
+                ButtonState(action: .showAd) {
                     TextState("Show Ad")
                 }
             }

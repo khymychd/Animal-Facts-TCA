@@ -21,19 +21,16 @@ struct CategoriesList: View {
                     FactsPager(store: factListFeature)
                 }
             }
-            .overlay(content: {
-                if store.isDisplayAd {
-                    ZStack {
-                        Color.gray.opacity(0.5)
-                        ProgressView()
-                    }
-                    .ignoresSafeArea()
-                }
-            })
             .task {
                 store.send(.fetchData)
             }
             .alert(store: store.scope(state: \.$alert, action: \.alert))
+            .fullScreenCover(store: store.scope(state: \.$destination, action: \.destination)) { store in
+                switch store.case {
+                case .commonAd(let commonAdFeature):
+                    CommonAd(store: commonAdFeature)
+                }
+            }
         }
     }
     

@@ -19,6 +19,8 @@
 		A09E77612C63C99900B709FB /* AnimalFactsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09E77602C63C99900B709FB /* AnimalFactsApp.swift */; };
 		A09E77652C63C99A00B709FB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A09E77642C63C99A00B709FB /* Assets.xcassets */; };
 		A09E77682C63C99A00B709FB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A09E77672C63C99A00B709FB /* Preview Assets.xcassets */; };
+		A0A09B092C6778770021891F /* CommonAd.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A09B082C6778770021891F /* CommonAd.swift */; };
+		A0A09B0B2C67791C0021891F /* CommonAdFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A09B0A2C67791C0021891F /* CommonAdFeature.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +36,8 @@
 		A09E77642C63C99A00B709FB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A09E77672C63C99A00B709FB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		A09E77712C63CBAD00B709FB /* Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Common.xcconfig; sourceTree = "<group>"; };
+		A0A09B082C6778770021891F /* CommonAd.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonAd.swift; sourceTree = "<group>"; };
+		A0A09B0A2C67791C0021891F /* CommonAdFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonAdFeature.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +83,7 @@
 			children = (
 				A0121AA12C64CDAE00ED92A1 /* CategoryListFeature.swift */,
 				A012D9B22C664FF7004AF04A /* FactsListFeature.swift */,
+				A0A09B0A2C67791C0021891F /* CommonAdFeature.swift */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -122,6 +127,7 @@
 			children = (
 				A09C20F72C63DABA00155E6B /* CategoriesList.swift */,
 				A09C20FB2C63DD6300155E6B /* FactsPager.swift */,
+				A0A09B082C6778770021891F /* CommonAd.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -252,9 +258,11 @@
 				A0121AA72C64CF2C00ED92A1 /* APIClient.swift in Sources */,
 				A012D9B32C664FF7004AF04A /* FactsListFeature.swift in Sources */,
 				A0121A9B2C6413C600ED92A1 /* Color+Hex.swift in Sources */,
+				A0A09B092C6778770021891F /* CommonAd.swift in Sources */,
 				A09C20F82C63DABA00155E6B /* CategoriesList.swift in Sources */,
 				A09E77612C63C99900B709FB /* AnimalFactsApp.swift in Sources */,
 				A0121AA22C64CDAE00ED92A1 /* CategoryListFeature.swift in Sources */,
+				A0A09B0B2C67791C0021891F /* CommonAdFeature.swift in Sources */,
 				A0121A9F2C64CADB00ED92A1 /* APIModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
