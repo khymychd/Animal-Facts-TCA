@@ -86,8 +86,8 @@
 		A0121A9C2C64CAC000ED92A1 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
-				A04A30152C68F3D500F2D2FC /* FetchDataClient.swift */,
 				A0121A9D2C64CACB00ED92A1 /* API */,
+				A04A30152C68F3D500F2D2FC /* FetchDataClient.swift */,
 				A04A30172C68F58500F2D2FC /* DependencyValues.swift */,
 			);
 			path = Dependencies;

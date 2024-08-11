@@ -40,7 +40,7 @@ struct FactsPager: View {
                 trailing:
                     WithPerceptionTracking {
                         let item = ImageSource(image: .init(uiImage: store.image ?? .init()), caption: store.caption)
-                        ShareLink(item: item, preview: SharePreview("item.caption", image: item)) {
+                        ShareLink(item: item, preview: SharePreview(item.caption, image: item)) {
                             Image(systemName: "square.and.arrow.up")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
