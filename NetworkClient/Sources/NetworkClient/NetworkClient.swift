@@ -38,6 +38,8 @@ public struct NetworkDispatcher {
             }
         case .failure(let failure):
             return .failure(failure)
+        case .canceled:
+            return .canceled
         }
     }
     
@@ -57,6 +59,12 @@ public struct NetworkDispatcher {
             }
             return .failure(.invalidResponse)
         } catch {
+            let nsError = error as NSError
+
+            if nsError.domain == NSURLErrorDomain,
+                nsError.code == NSURLErrorCancelled {
+                return .canceled
+            }
             return .failure(.requestFailed(error))
         }
     }
