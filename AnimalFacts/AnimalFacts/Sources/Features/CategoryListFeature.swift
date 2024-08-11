@@ -109,6 +109,8 @@ private extension CategoryListFeature {
                 await send.callAsFunction(.dataFetchSuccess(items))
             case .failure(let failure):
                 await send.callAsFunction(.dataFetchFail(withErrorMessage: failure.localizedDescription))
+            case .canceled:
+                return
             }
         }
     }
@@ -162,8 +164,8 @@ private extension CategoryListFeature {
         let content = row.content
         let factsListState: FactsListFeature.State = .init(
             title: row.title,
-            items: content.enumerated().map {
-                .init(id: $0.offset, title: $0.element.title, imageURL: $0.element.imageURL)
+            items: content.map {
+                .init(id: $0.id, title: $0.title, imageURL: $0.imageURL)
             }
         )
         state.path.append(.factList(factsListState))
@@ -182,7 +184,7 @@ private extension CategoryListFeature {
                 guard let rowId = state.selectedRowId else {
                     return .none
                 }
-                return .merge(.send(.completeAd), .send(.displayFact(for: rowId)))
+                return .concatenate(.send(.completeAd), .send(.displayFact(for: rowId)))
             }
         case .presented:
             return .none

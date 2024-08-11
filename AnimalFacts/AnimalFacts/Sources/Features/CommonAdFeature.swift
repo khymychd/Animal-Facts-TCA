@@ -11,20 +11,34 @@ struct CommonAdFeature {
     @Dependency(\.dismiss)
     var dismiss
     
-    struct State: Equatable {}
+    struct State: Equatable {
+        let duration: Double = 2.0
+    }
     
     enum Action: Equatable {
         case onAppear
+        case timerFire
+    }
+    
+    fileprivate enum CancelId: Equatable {
+        case timer
     }
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .onAppear:
+                let duration = state.duration
                 return .run { send in
-                    try await clock.sleep(for: .seconds(2))
-                    await dismiss()
+                    for await _ in clock.timer(interval: .seconds(duration)) {
+                        await send.callAsFunction(.timerFire)
+                    }
                 }
+                .cancellable(id: CancelId.timer)
+            case .timerFire:
+                return .concatenate(.cancel(id: CancelId.timer), .run { send in
+                    await dismiss()
+                })
             }
         }
     }

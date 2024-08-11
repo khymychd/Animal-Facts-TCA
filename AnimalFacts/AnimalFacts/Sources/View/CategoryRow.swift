@@ -10,7 +10,7 @@ struct CategoryRow: View {
     var body: some View {
         WithPerceptionTracking {
             HStack(alignment: .top, spacing: 0) {
-                PlaceholderedAsyncImage(store: store.scope(state: \.imageState, action: \.imageAction))
+                AsyncImageWithFallback(store: store.scope(state: \.imageState, action: \.imageAction))
                     .aspectRatio(12 / 9, contentMode: .fit)
                     .padding(.all, 5)
                     .frame(minWidth: 121)

@@ -22,14 +22,14 @@ struct APIClient {
         }
     }
     
-    private let networkClient: NetworkDispatcher = .init()
+    private let networkClient: NetworkDispatcher = .init(session: .init(configuration: .ephemeral))
     
-    func fetchAnimalList() async -> Result<[APIModel.Categorie], APIError> {
+    func fetchAnimalList() async -> NetworkClient.Result<[APIModel.Categorie], APIError> {
         let endPoint: CategoriesEndPoint = .animals
         return await networkClient.performRequest(for: endPoint, decodeTo: [APIModel.Categorie].self)
     }
     
-    func loadResource(from url: String) async -> Result<Data, APIError> {
+    func loadResource(from url: String) async -> NetworkClient.Result<Data, APIError> {
         guard let url = URL(string: url) else {
             return .failure(.invalidURL)
         }
