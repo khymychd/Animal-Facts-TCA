@@ -4,7 +4,7 @@ import Foundation
 import Dependencies
 import UIKit.UIImage
 
-struct FetchDataClient {
+struct APIClient {
     
     struct ImageProvider {
         var fetchImage: @Sendable (String) async -> Result<UIImage, ImageFetchError>
@@ -19,11 +19,11 @@ struct FetchDataClient {
 }
 
 // MARK: - ImageProvider DependencyKey
-extension FetchDataClient.ImageProvider: DependencyKey {
+extension APIClient.ImageProvider: DependencyKey {
     
-    static var liveValue: FetchDataClient.ImageProvider = .init { url in
-        @Dependency(\.apiClient) var apiClient
-        let result = await apiClient.fetchData(from: url)
+    static var liveValue: APIClient.ImageProvider = .init { url in
+        @Dependency(\.apiRouter) var apiRouter
+        let result = await apiRouter.fetchData(from: url)
         switch result {
         case .success(let success):
             if let image = UIImage(data: success) {
@@ -37,28 +37,28 @@ extension FetchDataClient.ImageProvider: DependencyKey {
         }
     }
     
-    static var previewValue: FetchDataClient.ImageProvider = .init { _ in
+    static var previewValue: APIClient.ImageProvider = .init { _ in
             .success(.placeholder)
     }
 }
 
 // MARK: - AnimalListProvider DependencyKey
-extension FetchDataClient.AnimalListProvider: DependencyKey {
+extension APIClient.AnimalListProvider: DependencyKey {
     
-    static var liveValue: FetchDataClient.AnimalListProvider = .init {
-        @Dependency(\.apiClient) var apiClient
-        return await apiClient.fetchAnimalList()
+    static var liveValue: APIClient.AnimalListProvider = .init {
+        @Dependency(\.apiRouter) var apiRouter
+        return await apiRouter.fetchAnimalList()
     }
     
-    static var previewValue: FetchDataClient.AnimalListProvider = .init {
+    static var previewValue: APIClient.AnimalListProvider = .init {
         .success(.stub)
     }
 }
 
 // MARK: - DependencyKey
-extension FetchDataClient: DependencyKey {
+extension APIClient: DependencyKey {
     
-    static var liveValue: FetchDataClient = .init(imageProvider: .liveValue, animalListProvider: .liveValue)
-    static var testValue: FetchDataClient = .init(imageProvider: .testValue, animalListProvider: .testValue)
-    static var previewValue: FetchDataClient = .init(imageProvider: .testValue, animalListProvider: .testValue)
+    static var liveValue: APIClient = .init(imageProvider: .liveValue, animalListProvider: .liveValue)
+    static var testValue: APIClient = .init(imageProvider: .testValue, animalListProvider: .testValue)
+    static var previewValue: APIClient = .init(imageProvider: .testValue, animalListProvider: .testValue)
 }

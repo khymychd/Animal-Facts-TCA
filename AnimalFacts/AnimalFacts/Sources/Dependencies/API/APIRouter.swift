@@ -4,7 +4,7 @@ import Foundation
 import NetworkClient
 import Dependencies
 
-struct APIClient {
+struct APIRouter {
     
     private enum CategoriesEndPoint: EndPoint {
         
@@ -41,7 +41,7 @@ struct APIClient {
 }
 
 // MARK: - DependencyKey
-extension APIClient: DependencyKey {
+extension APIRouter: DependencyKey {
    
-    static var liveValue: APIClient = .init()
+    static var liveValue: APIRouter = .init()
 }

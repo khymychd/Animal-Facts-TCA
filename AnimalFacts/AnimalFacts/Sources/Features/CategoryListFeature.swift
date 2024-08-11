@@ -56,7 +56,7 @@ struct CategoryListFeature {
         }
     }
 
-    @Dependency(\.fetchDataClient.animalListProvider) var animalListProvider
+    @Dependency(\.apiClient.animalListProvider) var animalListProvider
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in

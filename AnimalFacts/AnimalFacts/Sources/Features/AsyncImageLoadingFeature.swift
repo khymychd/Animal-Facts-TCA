@@ -24,7 +24,7 @@ struct AsyncImageLoadingFeature {
         case fetchImage
     }
     
-    @Dependency(\.fetchDataClient.imageProvider) var imageProvider
+    @Dependency(\.apiClient.imageProvider) var imageProvider
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
