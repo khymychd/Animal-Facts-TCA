@@ -25,7 +25,7 @@ struct AsyncImageLoadingFeature {
         case fetchResult(Result<UIImage, FetchError>)
     }
     
-    fileprivate enum CancelID: Equatable {
+    fileprivate enum CancelID: Equatable, Hashable {
         case fetchImage
     }
     
@@ -67,6 +67,8 @@ private extension AsyncImageLoadingFeature {
             case .failure(let failure):
                 debugPrint(failure.localizedDescription)
                 await send.callAsFunction(.fetchResult(.failure(.other(failure))))
+            case .canceled:
+                await send.callAsFunction(.cancelFetchImage)
             }
         }
         .cancellable(id: CancelID.fetchImage, cancelInFlight: true)

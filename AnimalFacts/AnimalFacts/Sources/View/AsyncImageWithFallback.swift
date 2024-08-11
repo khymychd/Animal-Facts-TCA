@@ -3,10 +3,11 @@
 import ComposableArchitecture
 import SwiftUI
 
-#warning("Rename Please")
-struct PlaceholderedAsyncImage: View {
+struct AsyncImageWithFallback: View {
     
     let store: StoreOf<AsyncImageLoadingFeature>
+    
+    var fallBackImage: Image = Image(systemName: "photo.fill")
     
     var body: some View {
         WithPerceptionTracking {
@@ -14,7 +15,7 @@ struct PlaceholderedAsyncImage: View {
                 Image(uiImage: image)
                     .resizable()
             } else {
-                Image(systemName: "photo.fill")
+                    fallBackImage
                     .resizable()
                     .foregroundStyle(Color.gray)
                     .overlay {
@@ -22,12 +23,9 @@ struct PlaceholderedAsyncImage: View {
                             ProgressView()
                         }
                     }
-                    .onAppear(perform: {
+                    .task {
                         store.send(.fetchImageIfNeeded)
-                    })
-                    .onDisappear(perform: {
-                        store.send(.cancelFetchImage)
-                    })
+                    }
             }
         }
     }
