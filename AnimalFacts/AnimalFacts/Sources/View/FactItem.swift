@@ -58,3 +58,22 @@ struct FactItem: View {
         }
     }
 }
+
+#Preview {
+    ZStack {
+        Color.background
+        FactItem(
+            store: .init(initialState: .init(
+                id: 0,
+                title: "Fact Text",
+                imageState: .init(id: 0, imageURL: ""),
+                hasNext: true,
+                hasPrevious: false
+            ), reducer: {
+                FactItemFeature()
+            }
+            )
+        )
+    }
+    .ignoresSafeArea()
+}

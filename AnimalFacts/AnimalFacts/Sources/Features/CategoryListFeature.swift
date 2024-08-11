@@ -3,13 +3,6 @@
 import ComposableArchitecture
 import UIKit.UIImage
 
-enum LoadingState: Int, Equatable {
-    case idle
-    case loading
-    case success
-    case failed
-}
-
 @Reducer
 struct CategoryListFeature {
     
@@ -38,6 +31,8 @@ struct CategoryListFeature {
         var loadingState: LoadingState = .idle
         var rows: IdentifiedArrayOf<Row> = .init()
         var path: StackState<Path.State> = .init()
+        
+        var errorMessage: String?
                 
         fileprivate var selectedRowId: Row.ID?
     }
@@ -61,7 +56,7 @@ struct CategoryListFeature {
         }
     }
 
-    let apiService: APIClient = .init()
+    @Dependency(\.fetchDataClient.animalListProvider) var animalListProvider
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -100,8 +95,9 @@ private extension CategoryListFeature {
     
     func fetchData(_ state: inout State) -> Effect<Action> {
         state.loadingState = .loading
+        state.errorMessage = nil
         return .run { send in
-            let fetchResult = await apiService.fetchAnimalList()
+            let fetchResult = await animalListProvider.fetchAnimalList()
             switch fetchResult {
             case .success(let success):
                 let sortedDataByOrder = success.sorted(by: { $0.order < $1.order })
@@ -130,6 +126,7 @@ private extension CategoryListFeature {
         }
 #endif
         state.loadingState = .failed
+        state.errorMessage = errorMessage
         return .none
     }
     

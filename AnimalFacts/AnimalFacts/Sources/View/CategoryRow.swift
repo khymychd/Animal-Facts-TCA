@@ -63,3 +63,22 @@ struct CategoryRow: View {
         }
     }
 }
+
+#Preview {
+    ZStack {
+        Color.background
+        CategoryRow(store: .init(initialState: .init(
+            id: 0,
+            title: "Title",
+            subtitle: "Subtitle",
+            imageURL: "",
+            contentStatus: .free,
+            content: .init(),
+            imageState: .init(id: 0, imageURL: "")), reducer: {
+                CategoryRowFeature()
+            }))
+        .frame(height: 100)
+        .padding(.horizontal, 20)
+    }
+    .ignoresSafeArea()
+}

@@ -30,3 +30,17 @@ struct AsyncImageWithFallback: View {
         }
     }
 }
+
+#Preview {
+    AsyncImageWithFallback(
+        store: .init(initialState: .init(
+            id: 0,
+            imageURL: "",
+            loadingState: .loading
+        ),reducer: {
+            AsyncImageLoadingFeature()
+        }
+        )
+    )
+    .frame(width: 300, height: 300)
+}

@@ -55,3 +55,19 @@ struct FactsPager: View {
         }
     }
 }
+
+#Preview {
+    NavigationStack {
+        FactsPager(
+            store: .init(initialState: .init(
+                title: "Title",
+                items: [APIModel.Categorie.Content].stub.enumerated().map {
+                    .init(id: $0.offset, title: $0.element.fact, imageURL: $0.element.image)
+                }
+            ), reducer: {
+                FactsListFeature()
+            }
+            )
+        )
+    }
+}

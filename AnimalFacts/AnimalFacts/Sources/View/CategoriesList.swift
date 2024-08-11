@@ -59,7 +59,7 @@ struct CategoriesList: View {
             .background(Color.background)
         case .failed:
             backgroundContainer {
-                Text("Some Error")
+                Text(store.errorMessage ?? "🤕")
             }
         }
     }
@@ -74,6 +74,13 @@ struct CategoriesList: View {
     }
 }
 
-//#Preview {
-//    CategoriesList(, store: .init(initialState: .init(), reducer: ))
-//}
+#Preview {
+    CategoriesList(
+        store: .init(
+            initialState: .init(),
+            reducer: {
+                CategoryListFeature()
+            }
+        )
+    )
+}

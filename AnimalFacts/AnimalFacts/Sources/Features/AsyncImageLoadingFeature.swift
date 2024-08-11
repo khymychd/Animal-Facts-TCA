@@ -6,11 +6,6 @@ import UIKit.UIImage
 @Reducer
 struct AsyncImageLoadingFeature {
     
-    enum FetchError: Error {
-        case failureToCreateImage
-        case other(Error)
-    }
-    
     @ObservableState
     struct State: Equatable, Identifiable {
         let id: Int
@@ -22,15 +17,14 @@ struct AsyncImageLoadingFeature {
     enum Action {
         case fetchImageIfNeeded
         case cancelFetchImage
-        case fetchResult(Result<UIImage, FetchError>)
+        case fetchResult(Result<UIImage, ImageFetchError>)
     }
     
     fileprivate enum CancelID: Equatable, Hashable {
         case fetchImage
     }
     
-    #warning("Make it as dependency")
-    let apiService: APIClient = .init()
+    @Dependency(\.fetchDataClient.imageProvider) var imageProvider
     
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -56,14 +50,10 @@ private extension AsyncImageLoadingFeature {
         state.loadingState = .loading
         let url = state.imageURL
         return .run { send in
-            let imageFetchResult = await apiService.loadResource(from: url)
+            let imageFetchResult = await imageProvider.fetchImage(url)
             switch imageFetchResult {
-            case .success(let imageData):
-                if let image = UIImage(data: imageData){
-                    await send.callAsFunction(.fetchResult(.success(image)))
-                    return
-                }
-                await send.callAsFunction(.fetchResult(.failure(.failureToCreateImage)))
+            case .success(let image):
+                await send.callAsFunction(.fetchResult(.success(image)))
             case .failure(let failure):
                 debugPrint(failure.localizedDescription)
                 await send.callAsFunction(.fetchResult(.failure(.other(failure))))
@@ -82,7 +72,7 @@ private extension AsyncImageLoadingFeature {
         return .cancel(id: CancelID.fetchImage)
     }
     
-    func fetchResult(_ result: Result<UIImage, FetchError>, _ state: inout State) -> Effect<Action> {
+    func fetchResult(_ result: Result<UIImage, ImageFetchError>, _ state: inout State) -> Effect<Action> {
         switch result {
         case .success(let success):
             state.loadingState = .success
@@ -90,6 +80,8 @@ private extension AsyncImageLoadingFeature {
         case .failure(let failure):
             debugPrint(failure.localizedDescription)
             state.loadingState = .failed
+        case .canceled:
+            state.loadingState = .idle
         }
         return .none
     }

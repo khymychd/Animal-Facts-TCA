@@ -14,6 +14,11 @@
 		A0121AA72C64CF2C00ED92A1 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0121AA62C64CF2C00ED92A1 /* APIClient.swift */; };
 		A012D9B32C664FF7004AF04A /* FactsListFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = A012D9B22C664FF7004AF04A /* FactsListFeature.swift */; };
 		A013B7D62C63D6E3004BF9F4 /* NetworkClient in Frameworks */ = {isa = PBXBuildFile; productRef = A013B7D52C63D6E3004BF9F4 /* NetworkClient */; };
+		A04A300E2C68EF8B00F2D2FC /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04A300D2C68EF8B00F2D2FC /* Types.swift */; };
+		A04A30102C68EFD300F2D2FC /* LoadingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04A300F2C68EFD300F2D2FC /* LoadingState.swift */; };
+		A04A30142C68F24200F2D2FC /* ImageFetchError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04A30132C68F24200F2D2FC /* ImageFetchError.swift */; };
+		A04A30162C68F3D500F2D2FC /* FetchDataClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04A30152C68F3D500F2D2FC /* FetchDataClient.swift */; };
+		A04A30182C68F58500F2D2FC /* DependencyValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04A30172C68F58500F2D2FC /* DependencyValues.swift */; };
 		A07251B12C67A8EE004F79B6 /* CategoryRowFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07251B02C67A8EE004F79B6 /* CategoryRowFeature.swift */; };
 		A07251B32C67B3EB004F79B6 /* AsyncImageLoadingFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07251B22C67B3EB004F79B6 /* AsyncImageLoadingFeature.swift */; };
 		A07251B52C67B840004F79B6 /* AsyncImageWithFallback.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07251B42C67B840004F79B6 /* AsyncImageWithFallback.swift */; };
@@ -35,6 +40,11 @@
 		A0121AA12C64CDAE00ED92A1 /* CategoryListFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryListFeature.swift; sourceTree = "<group>"; };
 		A0121AA62C64CF2C00ED92A1 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		A012D9B22C664FF7004AF04A /* FactsListFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FactsListFeature.swift; sourceTree = "<group>"; };
+		A04A300D2C68EF8B00F2D2FC /* Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Types.swift; sourceTree = "<group>"; };
+		A04A300F2C68EFD300F2D2FC /* LoadingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingState.swift; sourceTree = "<group>"; };
+		A04A30132C68F24200F2D2FC /* ImageFetchError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFetchError.swift; sourceTree = "<group>"; };
+		A04A30152C68F3D500F2D2FC /* FetchDataClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchDataClient.swift; sourceTree = "<group>"; };
+		A04A30172C68F58500F2D2FC /* DependencyValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyValues.swift; sourceTree = "<group>"; };
 		A07251B02C67A8EE004F79B6 /* CategoryRowFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryRowFeature.swift; sourceTree = "<group>"; };
 		A07251B22C67B3EB004F79B6 /* AsyncImageLoadingFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncImageLoadingFeature.swift; sourceTree = "<group>"; };
 		A07251B42C67B840004F79B6 /* AsyncImageWithFallback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncImageWithFallback.swift; sourceTree = "<group>"; };
@@ -76,7 +86,9 @@
 		A0121A9C2C64CAC000ED92A1 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
+				A04A30152C68F3D500F2D2FC /* FetchDataClient.swift */,
 				A0121A9D2C64CACB00ED92A1 /* API */,
+				A04A30172C68F58500F2D2FC /* DependencyValues.swift */,
 			);
 			path = Dependencies;
 			sourceTree = "<group>";
@@ -84,6 +96,7 @@
 		A0121A9D2C64CACB00ED92A1 /* API */ = {
 			isa = PBXGroup;
 			children = (
+				A04A30132C68F24200F2D2FC /* ImageFetchError.swift */,
 				A0121A9E2C64CADB00ED92A1 /* APIModel.swift */,
 				A0121AA62C64CF2C00ED92A1 /* APIClient.swift */,
 			);
@@ -122,9 +135,10 @@
 		A013B7D32C63D6D4004BF9F4 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				A0121AA02C64CD9600ED92A1 /* Features */,
 				A0121A9C2C64CAC000ED92A1 /* Dependencies */,
 				A0121A992C6413B600ED92A1 /* Extensions */,
+				A04A300C2C68EF7D00F2D2FC /* Entities */,
+				A0121AA02C64CD9600ED92A1 /* Features */,
 				A013B7D72C63DA9C004BF9F4 /* View */,
 			);
 			path = Sources;
@@ -148,6 +162,15 @@
 				A0A09B082C6778770021891F /* CommonAd.swift */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		A04A300C2C68EF7D00F2D2FC /* Entities */ = {
+			isa = PBXGroup;
+			children = (
+				A04A300D2C68EF8B00F2D2FC /* Types.swift */,
+				A04A300F2C68EFD300F2D2FC /* LoadingState.swift */,
+			);
+			path = Entities;
 			sourceTree = "<group>";
 		};
 		A09E77542C63C99900B709FB = {
@@ -277,7 +300,10 @@
 				A07251B52C67B840004F79B6 /* AsyncImageWithFallback.swift in Sources */,
 				A0121AA72C64CF2C00ED92A1 /* APIClient.swift in Sources */,
 				A07251B72C67B9D0004F79B6 /* CategoryRow.swift in Sources */,
+				A04A30182C68F58500F2D2FC /* DependencyValues.swift in Sources */,
 				A012D9B32C664FF7004AF04A /* FactsListFeature.swift in Sources */,
+				A04A30142C68F24200F2D2FC /* ImageFetchError.swift in Sources */,
+				A04A30102C68EFD300F2D2FC /* LoadingState.swift in Sources */,
 				A08FEE132C68C0AE007837D1 /* FactItem.swift in Sources */,
 				A0121A9B2C6413C600ED92A1 /* Color+Hex.swift in Sources */,
 				A0A09B092C6778770021891F /* CommonAd.swift in Sources */,
@@ -285,7 +311,9 @@
 				A09E77612C63C99900B709FB /* AnimalFactsApp.swift in Sources */,
 				A07251B32C67B3EB004F79B6 /* AsyncImageLoadingFeature.swift in Sources */,
 				A0121AA22C64CDAE00ED92A1 /* CategoryListFeature.swift in Sources */,
+				A04A30162C68F3D500F2D2FC /* FetchDataClient.swift in Sources */,
 				A0A09B0B2C67791C0021891F /* CommonAdFeature.swift in Sources */,
+				A04A300E2C68EF8B00F2D2FC /* Types.swift in Sources */,
 				A0121A9F2C64CADB00ED92A1 /* APIModel.swift in Sources */,
 				A08FEE112C68BC66007837D1 /* FactItemFeature.swift in Sources */,
 			);

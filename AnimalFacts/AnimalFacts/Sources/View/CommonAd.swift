@@ -23,7 +23,12 @@ struct CommonAd: View {
 }
 
 #Preview {
-    CommonAd(store: .init(initialState: .init(), reducer: {
-        CommonAdFeature()
-    }))
+    CommonAd(
+        store: .init(
+            initialState: .init(),
+            reducer: {
+                CommonAdFeature()
+            }
+        )
+    )
 }

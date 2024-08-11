@@ -33,6 +33,22 @@ enum APIModel {
             case content = "content"
         }
         
+        init(
+            order: Int,
+            title: String,
+            description: String,
+            imageURL: String,
+            status: Status,
+            content: [Content]?
+        ) {
+            self.order = order
+            self.title = title
+            self.description = description
+            self.imageURL = imageURL
+            self.status = status
+            self.content = content
+        }
+        
         init(from decoder: any Decoder) throws {
             let container: KeyedDecodingContainer<CodingKeys> = try decoder.container(keyedBy: CodingKeys.self)
             self.order = try container.decode(Int.self, forKey: .order)
@@ -56,5 +72,28 @@ enum APIModel {
                 self.status = .comingSoon
             }
         }
+    }
+}
+
+// MARK: - Categories Stub
+extension [APIModel.Categorie] {
+    
+    static var stub: Self = (0..<4).map {
+        .init(
+            order: $0,
+            title: "Title \($0)",
+            description: "Description \($0)",
+            imageURL: "\($0)",
+            status: $0 == 0 ? .free : $0 == 1 ? .premium : .comingSoon,
+            content: $0 == 0 ? .stub : $0 == 1 ? nil : .stub
+        )
+    }
+}
+
+// MARK: - Categories Content Stup
+extension [APIModel.Categorie.Content] {
+    
+    static var stub: Self = (0..<10).map {
+        .init(fact: "Fact at number \($0)", image: "\($0)")
     }
 }
