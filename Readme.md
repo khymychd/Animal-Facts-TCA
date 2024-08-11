@@ -10,6 +10,8 @@
 - **Used async/await for async tasks.**
 - **Implemented Dependency Injection (DI).**
 - **Compatible with iOS 16+.**
+### Note
+I intentionally did not use AsyncImage to showcase my ability to work with asynchronous data and to demonstrate how I can adapt the layout for scenarios involving such data.
 
 || Categories List | Facts List | Share |
 | --- | --- | --- | --- |
